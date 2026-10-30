@@ -5,13 +5,22 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
+  # Deterministic mode: no API key, no network (NFR-01).
   LLM_PROVIDER: offline
   ENABLE_WEB_TOOLS: "false"
   GETNET_TODAY: "2026-10-30"
 
 jobs:
   test:
+    name: lint + tests + eval gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,30 +29,43 @@ jobs:
           python-version: "3.12"
           cache: pip
       - name: Install
-        run: pip install -e ".[dev]"
-      - name: Unit + integration tests
+        run: pip install -e ".[dev]" ruff
+      - name: Lint (ruff — pyflakes + syntax errors; rule set pinned so a new ruff release cannot break CI)
+        run: ruff check --select E4,E7,E9,F src tests evals
+      - name: Tests (pytest)
         run: pytest -q
-      - name: Evaluation gate (routing >= 90%)
-        run: python evals/run_evals.py --min-routing 0.90
+      - name: Evaluation gate (overall routing accuracy >= 90%)
+        shell: bash # explicit shell enables pipefail, so the gate's exit code survives `tee`
+        run: python -m evals.run_evals --min-routing 0.90 | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Upload eval report
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: eval-report
-          path: evals/results/*.json
+          path: evals/results/latest.json
           if-no-files-found: ignore
 
   docker:
+    name: docker build + smoke test
     runs-on: ubuntu-latest
     needs: test
     steps:
       - uses: actions/checkout@v4
       - name: Build image
         run: docker build -t getnet-agents .
-      - name: Smoke test
+      - name: Start container
+        run: docker run -d --name api -p 8000:8000 -e LLM_PROVIDER=offline -e ENABLE_WEB_TOOLS=false getnet-agents
+      - name: Smoke test /health and POST /chat
         run: |
-          docker run -d --name api -p 8000:8000 -e LLM_PROVIDER=offline getnet-agents
           for i in $(seq 1 30); do curl -fsS localhost:8000/health && break; sleep 1; done
+          curl -fsS localhost:8000/health
           curl -fsS -X POST localhost:8000/chat -H 'Content-Type: application/json' \
-            -d '{"message":"Can I sell through WhatsApp using the Payment Link?","user_id":"cliente1988"}'
-          docker rm -f api
+            -d '{"message":"Can I sell through WhatsApp using the Payment Link?","user_id":"cliente1988"}' \
+            | tee chat.json | jq -e '.route == ["router","knowledge"] and (.sources | length > 0) and .language == "en"'
+          curl -fsS localhost:8000/metrics | grep -q getnet_requests_total
+      - name: Container logs
+        if: always()
+        run: docker logs api | tail -n 30
+      - name: Stop container
+        if: always()
+        run: docker rm -f api

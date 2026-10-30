@@ -1,89 +1,57 @@
-# Roteiro do vídeo — Getnet Multi-Agent Support (≈ 8 min)
+# Roteiro do vídeo — Getnet Multi-Agent Support (5–7 min)
 
-Formato: tela compartilhada (terminal + editor + navegador). Fala em primeira pessoa, ritmo calmo. Entre colchetes, o que aparece na tela.
+Formato: tela compartilhada (terminal + editor + navegador), fala em primeira pessoa e ritmo calmo. Entre colchetes, o que aparece na tela. Números do eval e do `git log` **são lidos da tela na hora da gravação** — não decore nenhum.
+
+Antes de gravar: `docker compose up -d --build`, `python -m evals.run_evals` e `git log --reverse --format='%ad %s' --date=iso` já rodados uma vez, para não esperar em frente à câmera.
 
 ---
 
-## 0:00 – 0:40 · Abertura
+## 0:00 – 0:45 · Raciocínio: o problema e a regra número um
 
-[Tela: README no GitHub, diagrama mermaid da arquitetura]
+[Tela: enunciado do case; lista dos 10 cenários]
 
-> Oi, eu sou o Matheus. Neste vídeo eu mostro a solução para o desafio AI Hardcore Engineer: um sistema multiagente de atendimento para a Getnet, exposto como API, empacotado em Docker, com RAG, ferramentas, guardrails, handoff humano, observabilidade e avaliação automática. Vou mostrar o raciocínio, as decisões de arquitetura e o sistema rodando nos dez cenários do case.
+> Oi, eu sou o Matheus. O desafio pede um sistema multiagente que interprete mensagens de lojistas e responda de forma útil. Olhando os dez cenários, vejo três tipos de pergunta: sobre produto Getnet, sobre a conta do próprio cliente e perguntas gerais, como tempo e câmbio. Cada uma pede uma fonte de verdade diferente. Um prompt único misturaria tudo e inventaria resposta — e um assistente que inventa quando o assunto é o dinheiro do cliente é pior do que nenhum. Então a regra número um é: sem fonte, não responde; encaminha para um humano.
 
-## 0:40 – 1:20 · O problema
+## 0:45 – 2:00 · Arquitetura
 
-[Tela: enunciado do case, lista dos 10 cenários]
+[Tela: diagrama mermaid do README; depois `orchestrator.py`]
 
-> Um lojista pergunta coisas muito diferentes no mesmo canal: diferença entre maquininhas, quando cai o dinheiro, maquininha sem internet, cotação do euro. Cada pergunta pede uma competência diferente: conhecimento de produto, dados da conta do cliente, ou informação geral da web. E existe um risco central: um assistente que inventa resposta sobre dinheiro do cliente é pior do que nenhum assistente. Então a regra número um do sistema é: sem fonte, não responde — encaminha para um humano.
-
-## 1:20 – 2:30 · Spec-Driven Development e a linha do tempo
-
-[Tela: `.specify/memory/constitution.md`, depois `specs/001-multi-agent-support/spec.md`, depois `git log --reverse`]
-
-> Eu trabalhei com Spec-Driven Development. Antes de qualquer linha de código, escrevi a constituição do projeto, com cinco artigos: spec primeiro; confiabilidade acima de esperteza; observabilidade; segurança e guardrails; simplicidade.
+> São quatro agentes e um orquestrador que chama cada um por função, com mensagens tipadas em Pydantic. O **Router** detecta idioma, classifica a intenção em sete categorias e monta o plano, com uma confiança. O **Knowledge** faz RAG sobre o site oficial — BM25 com peso por campo, sempre citando a URL — e usa ferramentas web para tempo, câmbio e busca. O **Support** consulta dados do cliente por ferramentas de CRM: previsão de liquidação, transações, status do terminal. O quarto, **Escalation**, abre protocolo e passa para um humano quando o cliente pede, quando a confiança é baixa ou quando não há fonte.
 >
-> Depois, a spec: histórias de usuário, requisitos funcionais e não funcionais com IDs, e os dez cenários do case como critérios de aceite. O plan traz as decisões de arquitetura em ADRs curtos e o pipeline de RAG. O tasks liga cada tarefa a um requisito e a um teste.
+> Antes do Router, os guardrails: prompt injection e fora de escopo são barrados, e CPF ou cartão são mascarados antes de qualquer agente ou log. O sistema roda em dois modos: `anthropic`, com Claude Haiku no roteamento e Sonnet nos agentes, e `offline`, determinístico, sem chave nem rede. É o offline que roda nos testes e no CI, e é o fallback se a API cair.
+
+## 2:00 – 4:00 · Demo dos cenários
+
+[Tela: terminal; `curl` em `localhost:8000/chat`; destacar `route`, `intent`, `sources`, `tool_calls`, `language`]
+
+> Subiu com um comando, o health responde. Agora os cenários do case, sempre com o cliente1988.
 >
-> O git log é a prova do processo: o primeiro commit é a spec; depois vêm implementação, testes e documentação, nessa ordem. Tudo em menos de uma hora. A matriz de rastreabilidade no README mostra requisito, módulo e teste lado a lado.
-
-## 2:30 – 3:50 · Arquitetura
-
-[Tela: diagrama mermaid; depois `orchestrator.py` e `schemas.py`]
-
-> São quatro agentes, coordenados por um orquestrador por chamadas diretas de função, com contratos tipados em Pydantic.
+> **Get Clássica contra Get Smart:** rota router → knowledge, com as fontes do site. **Dinheiro das vendas de ontem:** router → support, que chama a previsão de liquidação e responde com valor e data em dias úteis. **Maquininha sem internet:** dois agentes na mesma resposta — o Support vê que o terminal está offline e o Knowledge traz o passo a passo. **Transação recusada:** o Support lista as recusas do cliente com o código do emissor, e o Knowledge explica o que fazer. **Tempo em Porto Alegre e câmbio do euro:** o Knowledge chama as ferramentas web.
 >
-> O **Router** é a porta de entrada: detecta idioma, classifica a intenção em uma de sete categorias e monta o plano — a sequência de agentes — com um grau de confiança.
+> Pergunta em inglês volta em inglês; em português, em português.
+
+[Tela: três curls rápidos — prompt injection, mensagem com CPF, "quero falar com um atendente"]
+
+> Prompt injection é bloqueado antes de chegar a um modelo. O CPF é mascarado e nunca aparece na resposta. E pedir um atendente vai direto para o agente de escalonamento, que devolve um protocolo.
+
+## 4:00 – 5:00 · SDD e o git log
+
+[Tela: `.specify/memory/constitution.md`; `specs/001-multi-agent-support/spec.md`; saída do `git log --reverse`]
+
+> Eu trabalhei com Spec-Driven Development. O primeiro commit é a spec: constituição com cinco artigos, requisitos com IDs e os dez cenários como critérios de aceite. Só depois vêm implementação, testes e documentação — o git log mostra essa ordem com os horários reais, e a matriz de rastreabilidade no README liga cada requisito ao módulo e ao teste. [Ler da tela: horário do primeiro e do último commit.]
+
+## 5:00 – 6:15 · Avaliação e observabilidade
+
+[Tela: saída de `python -m evals.run_evals`; depois `curl /metrics` e uma linha de log JSON]
+
+> Além dos testes, tem um eval com três conjuntos: os dez cenários oficiais, vinte e duas variações em português e inglês — que não usei para ajustar o roteador — e seis casos de guardrail, incluindo pedido de dados de outro cliente e vazamento de CPF. O runner mede acurácia de roteamento, plano, ferramentas, handoff, guardrails e latência, e o CI falha se o roteamento geral cair abaixo de noventa por cento. [Ler da tela: a linha "Routing accuracy" de cada coluna e o veredito do gate.]
 >
-> O **Knowledge** responde sobre produtos Getnet com RAG sobre o conteúdo do site oficial, sempre com citação de URL, e usa ferramentas web para perguntas gerais: previsão do tempo, câmbio, busca.
+> [Se houver casos falhando, mostrar a lista "Failing cases" e dizer o que são e o que será corrigido — o eval existe justamente para achar isso. Se o gate estiver verde, destacar o que o conjunto de variações cobre.]
 >
-> O **Support** atende o cliente com dados dele, num loop de tool use sobre as ferramentas de CRM: perfil, previsão de liquidação, transações recentes, status do terminal e abertura de chamado.
->
-> O quarto, **Escalation**, abre protocolo e faz o handoff para um humano quando o cliente pede, quando a confiança é baixa ou quando não há fonte.
->
-> O sistema roda em dois modos: `anthropic`, com Claude Haiku no roteamento e Claude Sonnet nos agentes, e `offline`, determinístico, sem chave e sem rede. O modo offline é o que roda nos testes e no CI — e também é o fallback se a API cair.
+> Cada requisição tem um `trace_id` e um span por agente no log JSON, e o `/metrics` expõe contadores e latências em formato Prometheus, prontos para dashboard e alerta de taxa de handoff e latência p95.
 
-## 3:50 – 4:30 · Pipeline RAG
-
-[Tela: `rag/ingest.py`, `rag/store.py`, `data/knowledge/`]
-
-> Ingestão: as páginas do site da Getnet são baixadas, limpas e quebradas em trechos com título, URL e idioma. Armazenamento: um índice BM25 com pesos por campo — título pesa mais que corpo —, sem dependência pesada. Recuperação: top-k trechos, filtrados pelo idioma da pergunta. Geração: o agente responde só com o que está nos trechos e cita a fonte; uma verificação de grounding na saída confere se a resposta está ancorada nos trechos.
-
-## 4:30 – 6:00 · Demo dos 10 cenários
-
-[Tela: terminal com `docker compose up -d --build`, depois os curls]
-
-> Sobe com um comando: `docker compose up -d --build`. O health check responde. Agora os dez cenários do case, todos com o usuário cliente1988.
-
-[Rodar cada curl e destacar `route`, `intent`, `sources`, `tool_calls`, `language`]
-
-> Get Clássica versus Get Smart: rota router → knowledge, com fontes do site.
-> Previsão do tempo em Porto Alegre: knowledge chamando a ferramenta de clima.
-> Dinheiro das vendas de ontem: router → support, ferramenta de previsão de liquidação, com a data e o valor.
-> Pix sem conta bancária: knowledge com fonte.
-> Maquininha sem internet: support consulta o status do terminal e knowledge traz o passo a passo — dois agentes na mesma resposta.
-> Antecipação de recebíveis: knowledge com fonte.
-> Cotação do euro: ferramenta de câmbio.
-> Erro de transação recusada: support olha as transações recusadas do cliente e knowledge explica o que fazer.
-> Crediário e Link de Pagamento pelo WhatsApp: knowledge.
->
-> Repare que a pergunta em inglês volta em inglês, e em português volta em português.
-
-## 6:00 – 6:50 · Guardrails e handoff
-
-[Tela: curls de prompt injection, fora de escopo, CPF, pedido de atendente]
-
-> Prompt injection — "ignore as instruções anteriores" — é bloqueado antes de chegar a qualquer modelo. Pedido fora de escopo, como um poema sobre gatos, é recusado com educação. Um CPF na mensagem é mascarado antes de ser processado e nunca aparece na resposta nem no log. E "quero falar com um atendente" vai direto para o agente de escalonamento, que devolve um número de protocolo.
-
-## 6:50 – 7:30 · Observabilidade e avaliação
-
-[Tela: log JSON com trace_id e spans; `curl /metrics`; saída do `evals/run_evals.py`]
-
-> Cada requisição tem um trace_id e um span por agente no log estruturado em JSON, e o endpoint `/metrics` expõe contadores e latências no formato Prometheus — pronto para um dashboard no Grafana com alerta de taxa de handoff, erro de ferramenta e latência p95.
->
-> A avaliação tem um golden set com os dez cenários, as versões em português, paráfrases e casos adversariais. O runner mede acurácia de intenção, rota, idioma, cobertura de fontes, recall de ferramentas, handoff e precisão dos guardrails. Se o roteamento ficar abaixo de 90%, o CI falha.
-
-## 7:30 – 8:00 · Limitações e próximos passos
+## 6:15 – 7:00 · Limitações e próximos passos
 
 [Tela: seção Limitações do README]
 
-> Limitações honestas: o CRM é simulado com dados fictícios, a base de conhecimento é um snapshot do site e o modo offline gera respostas extrativas, menos fluidas que as do Claude. Próximos passos: memória de conversa por usuário, reindexação agendada do site, LLM-as-judge rodando toda noite no modo anthropic e integração real do handoff com a fila de atendimento. Obrigado.
+> Limitações honestas: o CRM é simulado, com dados fictícios; a base de conhecimento é um retrato do site, não um crawler em tempo real; e o modo offline responde por extração de trechos, menos fluido que o Claude. Próximos passos: memória de conversa por usuário, reindexação agendada do site, LLM-as-judge noturno no modo anthropic e integração real do handoff com a fila de atendimento. Obrigado.

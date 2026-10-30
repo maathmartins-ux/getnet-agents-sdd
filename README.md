@@ -281,6 +281,13 @@ disjoint files (knowledge base, tools, evals), while the core was implemented ag
 | BR-06 Business days | `tools/crm.py` | `test_tools.py` |
 | BR-07 PII | `guardrails.py`, `orchestrator.py` | `test_guardrails.py`, `test_observability.py::test_logs_never_contain_raw_pii` |
 
+### Walkthrough video
+
+**[Watch the walkthrough (8 min, pt-BR)](https://github.com/maathmartins-ux/getnet-agents-sdd/releases/download/v1.0.0/getnet-agents-walkthrough.mp4)**:
+reasoning, architecture, the 10 case scenarios, guardrails, SDD timeline, tests and evaluation (offline and Claude),
+observability and limitations. The narration is a **synthetic voice** reading over screens rendered from real
+outputs of 2026-10-30. The script is in [docs/VIDEO_SCRIPT.md](docs/VIDEO_SCRIPT.md).
+
 ### SDD timeline
 
 Generated with `git log --reverse --format='%ad %s' --date=iso` (commit dates are untouched; the `docs:` commit
@@ -330,9 +337,29 @@ Smoke run against the container (user `cliente1988`, `ENABLE_WEB_TOOLS=true`):
 | 9 | Crediário installments | product_info | router → knowledge | 3 sources (up to 48 installments, set by the issuer) |
 | 10 | Payment Link on WhatsApp | product_info | router → knowledge | 3 sources |
 
-Not verified here: the `anthropic` mode end to end (no API key on the build machine). It is covered by tests with
-fake LLMs for every failure mode (outage, ungrounded answer, `NOT_IN_SOURCES`, invalid router JSON), and by
-`python evals/run_evals.py --live` once a key is set.
+### Claude mode (`LLM_PROVIDER=anthropic`, live web tools), inside the container
+
+`docker compose exec api python -m evals.run_evals --live`. 38 cases, 2026-10-30 15:35–15:38:
+
+| Metric | official | heldout | guardrail | ALL |
+|---|---:|---:|---:|---:|
+| Routing accuracy (intent) | 100.0% | 100.0% | 100.0% | **100.0%** |
+| Plan accuracy (exact agent route) | 100.0% | 100.0% | 100.0% | 100.0% |
+| Language accuracy | 100.0% | 100.0% | 100.0% | 100.0% |
+| Tool recall | 100.0% | 100.0% | 100.0% | 100.0% |
+| Tool precision | 83.3% | 93.3% | 100.0% | 90.9% |
+| Handoff / guardrail accuracy | 100.0% | 100.0% | 100.0% | 100.0% |
+| Keyword groundedness | 100.0% | 100.0% | 100.0% | 100.0% |
+| Latency p50 / p95 (ms) | 5 741 / 14 105 | 4 763 / 14 290 | 0.6 / 12 374 | 4 484 / 14 105 |
+
+Gate **PASS**, 0 crashes. The two "failures" are tool precision: on a decline error Claude also calls
+`get_terminal_status` to rule out a connectivity fault. That is a defensible extra diagnostic, so it is kept and not
+prompted away. Sample answers checked by hand: settlement amounts identical to the CRM, connectivity
+troubleshooting citing the official manual `[1]`, crediário answer in Portuguese citing 4 sources. Claude mode costs
+seconds of latency per request (p95 ≈ 14 s, mostly the Sonnet tool loop); the offline mode answers in milliseconds.
+
+LLM failure modes (outage, ungrounded answer, `NOT_IN_SOURCES`, invalid router JSON) are also covered by tests with
+fake LLMs.
 
 ## 11. Limitations and next steps
 

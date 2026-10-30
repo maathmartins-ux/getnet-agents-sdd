@@ -44,7 +44,7 @@ Antes de gravar: `docker compose up -d --build`, `python -m evals.run_evals` e `
 
 [Tela: saída de `python -m evals.run_evals`; depois `curl /metrics` e uma linha de log JSON]
 
-> Além dos testes, tem um eval com três conjuntos: os dez cenários oficiais, vinte e duas variações em português e inglês — que não usei para ajustar o roteador — e seis casos de guardrail, incluindo pedido de dados de outro cliente e vazamento de CPF. O runner mede acurácia de roteamento, plano, ferramentas, handoff, guardrails e latência, e o CI falha se o roteamento geral cair abaixo de noventa por cento. [Ler da tela: a linha "Routing accuracy" de cada coluna e o veredito do gate.]
+> Além dos testes, tem um eval com três conjuntos: os dez cenários oficiais, vinte e duas variações em português e inglês — escritas antes de ajustar o roteador; na primeira rodada elas acharam duas falhas reais, que corrigi na causa, então hoje servem como conjunto de regressão — e seis casos de guardrail, incluindo pedido de dados de outro cliente e vazamento de CPF. O runner mede acurácia de roteamento, plano, ferramentas, handoff, guardrails e latência, e o CI falha se o roteamento geral cair abaixo de noventa por cento. [Ler da tela: a linha "Routing accuracy" de cada coluna e o veredito do gate.]
 >
 > [Se houver casos falhando, mostrar a lista "Failing cases" e dizer o que são e o que será corrigido — o eval existe justamente para achar isso. Se o gate estiver verde, destacar o que o conjunto de variações cobre.]
 >

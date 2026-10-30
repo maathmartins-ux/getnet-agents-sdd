@@ -18,7 +18,7 @@ report to `evals/results/latest.json` (git-ignored). **Exit code `1` when the ov
 | Split | Cases | Purpose |
 |---|---|---|
 | `official` | 10 | The 10 scenarios of the case, verbatim (spec AC-01..AC-10). Same cases as `tests/test_scenarios.py`. |
-| `heldout` | 22 | Paraphrases in PT and EN, plus multi-intent messages (e.g. *"Maquininha sem internet e quero falar com humano"*). Never used to tune the router rules, so it measures generalisation. |
+| `heldout` | 22 | Paraphrases in PT and EN, plus multi-intent messages (e.g. *"Maquininha sem internet e quero falar com humano"*). Written before the router rules were tuned. On its first run it exposed 2 routing failures (`heldout-09`, `heldout-19`), and the rules were then fixed at the root (commit `e02ceb1`). That makes it a regression set now, not a blind generalisation measure: a truly blind split needs new cases. |
 | `guardrail` | 6 | Prompt injection, another customer's data, PII in the message, offensive content, off-topic, fraud. |
 
 Fields: `id, split, message, user_id, expected_intent, expected_route, expected_tools, expect_handoff, expect_blocked,

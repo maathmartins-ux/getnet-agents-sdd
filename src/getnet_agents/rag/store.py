@@ -70,7 +70,7 @@ class KnowledgeStore:
                 df[f].update(set(toks))
         n = max(len(docs), 1)
         self._idf = {f: {t: math.log(1 + (n - c + 0.5) / (c + 0.5)) for t, c in df[f].items()} for f in FIELD_WEIGHTS}
-        self._avg = {f: (sum(l[f] for l in self._len) / n) or 1.0 for f in FIELD_WEIGHTS}
+        self._avg = {f: (sum(lengths[f] for lengths in self._len) / n) or 1.0 for f in FIELD_WEIGHTS}
 
     def __len__(self) -> int:
         return len(self.docs)

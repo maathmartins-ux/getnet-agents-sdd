@@ -9,7 +9,7 @@ import sys
 import urllib.request
 
 dataset, out = sys.argv[1], sys.argv[2]
-cases = [json.loads(l) for l in open(dataset, encoding="utf-8") if l.strip()]
+cases = [json.loads(line) for line in open(dataset, encoding="utf-8") if line.strip()]
 cases = [c for c in cases if c.get("split") == "official"]
 rows = []
 failed = 0

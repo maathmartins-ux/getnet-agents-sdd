@@ -1,0 +1,92 @@
+{
+  "_notice": "DADOS FICTÍCIOS para demonstração. Nenhum cliente, documento, terminal, taxa ou transação real da Getnet.",
+  "customers": {
+    "cliente1988": {
+      "user_id": "cliente1988",
+      "fictitious": true,
+      "merchant_name": "Padaria Bom Grão",
+      "document_masked": "**.***.***/0001-88",
+      "city": "Porto Alegre",
+      "state": "RS",
+      "segment": "Alimentação",
+      "since": "2021-03-15",
+      "receivables_plan": "D+1",
+      "fees": {"debit": 0.0199, "credit": 0.0349, "pix": 0.0},
+      "terminals": [
+        {
+          "terminal_id": "T-1988-01",
+          "model": "Get Smart",
+          "serial": "GS-0001988-A",
+          "status": "online",
+          "connectivity": "wifi",
+          "signal": "good",
+          "last_seen": "2026-10-30T14:52:00-03:00",
+          "last_error": null
+        },
+        {
+          "terminal_id": "T-1988-02",
+          "model": "Get Clássica",
+          "serial": "GC-0001988-B",
+          "status": "offline",
+          "connectivity": "chip",
+          "signal": "none",
+          "last_seen": "2026-10-30T09:14:00-03:00",
+          "last_error": "Sem conexão: chip sem sinal / Wi-Fi não configurado"
+        }
+      ],
+      "transactions": [
+        {"id": "TX-1988-0001", "datetime": "2026-10-29T08:12:00-03:00", "terminal_id": "T-1988-01", "product": "debit", "brand": "Visa", "amount": 45.90, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-1988-0002", "datetime": "2026-10-29T09:40:00-03:00", "terminal_id": "T-1988-01", "product": "credit", "brand": "Mastercard", "amount": 289.50, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-1988-0003", "datetime": "2026-10-29T11:05:00-03:00", "terminal_id": "T-1988-01", "product": "pix", "brand": "Pix", "amount": 75.00, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-1988-0004", "datetime": "2026-10-29T15:30:00-03:00", "terminal_id": "T-1988-02", "product": "debit", "brand": "Elo", "amount": 120.00, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-1988-0005", "datetime": "2026-10-29T17:48:00-03:00", "terminal_id": "T-1988-01", "product": "credit", "brand": "Visa", "amount": 512.30, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-1988-0006", "datetime": "2026-10-29T18:02:00-03:00", "terminal_id": "T-1988-01", "product": "credit", "brand": "Visa", "amount": 830.00, "status": "declined", "decline_code": "51", "decline_reason": "51 – saldo insuficiente / limite indisponível no cartão do comprador"},
+        {"id": "TX-1988-0007", "datetime": "2026-10-30T10:21:00-03:00", "terminal_id": "T-1988-01", "product": "debit", "brand": "Mastercard", "amount": 64.20, "status": "declined", "decline_code": "05", "decline_reason": "05 – transação não autorizada pelo emissor"},
+        {"id": "TX-1988-0008", "datetime": "2026-10-30T10:24:00-03:00", "terminal_id": "T-1988-01", "product": "pix", "brand": "Pix", "amount": 64.20, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-1988-0009", "datetime": "2026-10-28T12:10:00-03:00", "terminal_id": "T-1988-02", "product": "credit", "brand": "Elo", "amount": 199.99, "status": "approved", "decline_code": null, "decline_reason": null}
+      ]
+    },
+    "cliente2045": {
+      "user_id": "cliente2045",
+      "fictitious": true,
+      "merchant_name": "Oficina Roda Viva",
+      "document_masked": "**.***.***/0001-45",
+      "city": "Campinas",
+      "state": "SP",
+      "segment": "Serviços automotivos",
+      "since": "2023-07-01",
+      "receivables_plan": "standard",
+      "fees": {"debit": 0.0179, "credit": 0.0299, "pix": 0.0},
+      "terminals": [
+        {
+          "terminal_id": "T-2045-01",
+          "model": "Get Smart",
+          "serial": "GS-0002045-A",
+          "status": "online",
+          "connectivity": "chip",
+          "signal": "fair",
+          "last_seen": "2026-10-30T13:40:00-03:00",
+          "last_error": null
+        }
+      ],
+      "transactions": [
+        {"id": "TX-2045-0001", "datetime": "2026-10-29T10:00:00-03:00", "terminal_id": "T-2045-01", "product": "credit", "brand": "Mastercard", "amount": 1450.00, "status": "approved", "decline_code": null, "decline_reason": null},
+        {"id": "TX-2045-0002", "datetime": "2026-10-29T16:20:00-03:00", "terminal_id": "T-2045-01", "product": "debit", "brand": "Visa", "amount": 380.00, "status": "approved", "decline_code": null, "decline_reason": null}
+      ]
+    },
+    "cliente3101": {
+      "user_id": "cliente3101",
+      "fictitious": true,
+      "merchant_name": "Ateliê Linha & Agulha",
+      "document_masked": "***.***.***-01",
+      "city": "Recife",
+      "state": "PE",
+      "segment": "Moda e acessórios",
+      "since": "2025-01-20",
+      "receivables_plan": "standard",
+      "fees": {"debit": 0.0199, "credit": 0.0319, "pix": 0.0},
+      "terminals": [],
+      "transactions": []
+    }
+  }
+}

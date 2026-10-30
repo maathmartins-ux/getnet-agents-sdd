@@ -1,5 +1,17 @@
 # Getnet Multi-Agent Support System
 
+[![ci](https://github.com/maathmartins-ux/getnet-agents-sdd/actions/workflows/ci.yml/badge.svg)](https://github.com/maathmartins-ux/getnet-agents-sdd/actions/workflows/ci.yml)
+
+**▶ [Walkthrough video (8 min, pt-BR)](https://github.com/maathmartins-ux/getnet-agents-sdd/releases/download/v1.0.0/getnet-agents-walkthrough.mp4)** ·
+**[Evidence](#10-evidence)** · **[SDD timeline](#sdd-timeline)** · **[Spec](specs/001-multi-agent-support/spec.md)**
+
+| | |
+|---|---|
+| Agents | Router · Knowledge (RAG + web) · Support (CRM tool use) · Escalation (human handoff) |
+| Run | `docker compose up -d --build` → `POST localhost:8000/chat` |
+| Quality | 127 tests · golden set of 38 cases: **100 % routing** offline and with Claude live · 10/10 case scenarios over HTTP |
+| Built with | Spec-Driven Development: spec committed first, 27 min from first command to documented solution |
+
 A multi-agent assistant for Getnet merchants behind one HTTP endpoint. A **Router** reads each message and
 sends it to the right specialist: a **Knowledge** agent (RAG over Getnet's website + live web tools), a
 **Customer Support** agent (CRM tools via an LLM tool-use loop) and an **Escalation** agent (ticket + human

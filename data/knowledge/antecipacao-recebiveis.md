@@ -26,7 +26,7 @@ A página não informa percentual de taxa de antecipação. Ela diz que, com as 
 Gravame substitui a antiga Trava de Domicílio Bancário: os recebíveis são direcionados ao banco como garantia de uma operação de crédito. Cessão é a transferência da titularidade dos recebíveis a outra pessoa.
 
 ## Horários
-Para correntistas Santander, de segunda a sexta, das 9h às 21h, exceto feriados. Uma comunicação de feriado (Carnaval 2024) avisava que não há antecipações nesses períodos.
+Para correntistas Santander, de segunda a sexta, das 9h às 21h, exceto feriados. A página não informa se há antecipação em fins de semana.
 
 ## English summary
 Receivables advance lets you receive credit-card sales early. The schedule can be advanced from D+1 (one business day after the sale) up to D-3 before settlement. It can be automatic (a condition for the "receive according to your sales" plan, subject to credit approval) or one-off through the Getnet call center, the terminal (Get Smart: Payment > Advance), or the app/portal. The Getnet FAQ does not publish an advance fee percentage. Santander account holders can also use their manager or internet banking, Monday–Friday 9am–9pm. Online (payment link) sales are blocked from advance for 6 months.

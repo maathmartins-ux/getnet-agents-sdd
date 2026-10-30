@@ -16,7 +16,7 @@ Este comparativo junta o que as páginas e os manuais oficiais da Getnet informa
 | Conectividade | Chip 3G gratuito + Wi-Fi (Bluetooth no ícone do visor) | Chip 4G gratuito + Wi-Fi + Bluetooth |
 | Impressora | Bobina de papel (2 bobinas na caixa) | Imprime via do cliente e relatórios (modelo da impressora não informado) |
 | Aplicativos | Sem loja de apps (usa o Aplicativo Getnet Brasil no celular) | Apps de sistema (Pagamento, Getstore, Configurar) e automações instaladas pela Getstore |
-| Android | Não informado | Não informado (apenas o Get Tap exige Android 12+ no celular) |
+| Android | Não informado | Sim: equipamento Android, mais de 100 apps homologados (Central de ajuda) |
 | Pix | QR Code na tela; manual exige domicílio bancário Santander | QR Code ou aproximação NFC; habilitar no app |
 | Aproximação (NFC) | Sim | Sim |
 | Mensalidade se não atingir faturamento | R$ 79,90/mês | R$ 129,90/mês |
@@ -30,7 +30,7 @@ Os valores variam conforme a página e a oferta consultada: a lista de maquininh
 Get Mini (mensalidade R$ 14,90 sem isenção) e Get Tap, que transforma o celular em maquininha (Android 12+ com NFC, sem aluguel).
 
 ## Em resumo
-A Clássica é a opção mais simples e barata, com teclado e bobina. A Smart é o terminal com tela touch, 4G e aplicativos de automação.
+A Clássica é a opção mais simples e barata, com teclado e bobina. A Smart é o terminal Android com tela touch, 4G e aplicativos de automação (pedidos pelo site, pelo 4020-4011 ou pelo gerente Santander).
 
 ## English summary
-Get Clássica: keypad terminal, built-in paper-roll printer, free 3G chip plus Wi-Fi, Pix via on-screen QR code, rental R$ 79.90/month if the sales threshold is not met. Get Smart: touchscreen terminal, free 4G chip plus Wi-Fi and Bluetooth, system apps and Getstore for extra apps, Pix via QR code or NFC, rental R$ 129.90/month if the threshold is not met. Both accept NFC and receive in 2 business days with a Get Conta. Rental waiver thresholds differ by page and offer (R$ 10k–R$ 80k monthly sales). The sources do not state the operating system.
+Get Clássica: keypad terminal, built-in paper-roll printer, free 3G chip plus Wi-Fi, Pix via on-screen QR code, rental R$ 79.90/month if the sales threshold is not met. Get Smart: touchscreen terminal, free 4G chip plus Wi-Fi and Bluetooth, system apps and Getstore for extra apps, Pix via QR code or NFC, rental R$ 129.90/month if the threshold is not met. Both accept NFC and receive in 2 business days with a Get Conta. Rental waiver thresholds differ by page and offer (R$ 10k–R$ 80k monthly sales). Only the Get Smart is described as an Android device that runs apps; the Get Clássica sources do not mention Android.

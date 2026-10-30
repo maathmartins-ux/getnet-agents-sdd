@@ -26,7 +26,7 @@ PLANS: dict[str, list[str]] = {
 RULES: dict[str, list[tuple[str, float]]] = {
     "human_request": [
         (r"\b(atendente|humano|human being|real person|pessoa de verdade|operador|operator|representative|supervisor|ouvidoria)\b", 4),
-        (r"(talk|speak|chat) (to|with) (a |an )?(human|person|agent|someone)|falar com (um|uma|alguem)", 4),
+        (r"(talk|speak|chat) (to|with) (a |an )?(human|person|agent|someone)|falar com (um |uma |alguem|humano|pessoa)", 4),
     ],
     "account_support": [
         (r"\b(when will|quando (vou|vai|cai|caira|sera)|quando o dinheiro)\b", 2.5),
@@ -43,7 +43,7 @@ RULES: dict[str, list[tuple[str, float]]] = {
         (r"\b(my (card )?machine|minha maquin\w*|my terminal|meu terminal|my pos)\b", 1),
     ],
     "general_web": [
-        (r"\b(weather|forecast|previsao do tempo|clima|temperatur\w*|vai chover|rain)\b", 4),
+        (r"\b(weather|forecast|previsao do tempo|clima|temperatur\w*|chov\w*|chuv\w*|rain\w*)\b", 4),
         (r"\b(exchange rate|cotacao|cambio|currency)\b", 4),
         (r"\b(euro|dolar|dollar|libra|pound|bitcoin)\b", 1.5),
         (r"\b(news|noticia\w*|search the web|pesquis\w* na (web|internet))\b", 2.5),
@@ -88,6 +88,8 @@ def classify_offline(text: str) -> RoutingDecision:
     scores = _scores(text)
     ranked = sorted(scores.items(), key=lambda kv: kv[1], reverse=True)
     (top, s1), (_, s2) = ranked[0], ranked[1]
+    if scores["human_request"] > 0:  # rule 1 of prompts/router.md: an explicit request for a person always wins
+        top, s1, s2 = "human_request", scores["human_request"], max(v for k, v in scores.items() if k != "human_request")
     if s1 == 0:
         return RoutingDecision(intent="product_info", language=lang, plan=PLANS["product_info"], confidence=0.3,
                                rationale="no routing cue matched")

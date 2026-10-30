@@ -60,7 +60,7 @@ class Orchestrator:
         )
 
     def _handle(self, req: ChatRequest, trace_id: str, start: float) -> ChatResponse:
-        check = check_input(req.message)  # PII masked from here on (BR-07)
+        check = check_input(req.message, req.user_id)  # PII masked from here on (BR-07)
         if check.blocked:
             lang = detect_language(check.text)
             intent = "out_of_scope" if check.category == "out_of_scope" else "unsafe"

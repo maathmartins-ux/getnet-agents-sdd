@@ -33,7 +33,7 @@ def _city(text: str) -> str | None:
 def _general(message: str, lang: str) -> AgentResult:
     folded = fold(message)
     calls: list[ToolCall] = []
-    if re.search(r"weather|forecast|previsao|clima|tempo|temperatur|chuv|rain", folded):
+    if re.search(r"weather|forecast|previsao|clima|tempo|temperatur|chuv|chov|rain", folded):
         city = _city(message) or "São Paulo"
         days = 0 if re.search(r"\b(today|hoje|now|agora)\b", folded) else 1
         result, call = call_tool("get_weather_forecast", {"city": city, "days_ahead": days})

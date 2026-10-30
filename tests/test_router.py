@@ -16,6 +16,8 @@ CASE = [
     ("How many installments can I split a sale into with the crediário?", "product_info"),
     ("Can I sell through WhatsApp using the Payment Link?", "product_info"),
     ("Quero falar com um atendente", "human_request"),
+    ("Maquininha sem internet e quero falar com humano", "human_request"),  # explicit human request wins
+    ("Vai chover em Porto Alegre amanhã?", "general_web"),
 ]
 
 

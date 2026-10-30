@@ -99,6 +99,8 @@ class KnowledgeStore:
 
 @lru_cache(maxsize=4)
 def load_store(path: str) -> KnowledgeStore:
-    from .ingest import load_corpus
+    """Index = curated bilingual corpus (`corpus.jsonl`) + curated topic sheets (`*.md`) in the same folder."""
+    from .ingest import load_corpus, load_markdown
 
-    return KnowledgeStore(load_corpus(Path(path)))
+    p = Path(path)
+    return KnowledgeStore(load_corpus(p) + load_markdown(p.parent))

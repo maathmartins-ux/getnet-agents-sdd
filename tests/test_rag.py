@@ -63,11 +63,35 @@ def test_load_corpus_rejects_missing_fields(tmp_path: Path) -> None:
         load_corpus(p)
 
 
+def test_markdown_sheets_are_split_by_section(tmp_path: Path) -> None:
+    from getnet_agents.rag.ingest import load_markdown
+
+    (tmp_path / "README.md").write_text("# not knowledge\n\nno front matter here at all, skip me please.", encoding="utf-8")
+    (tmp_path / "pix.md").write_text(
+        "---\ntitle: Pix\nsource_url: https://site.getnet.com.br/pix/\nlang_original: pt\nkeywords: [pix, chave]\n---\n"
+        "# Pix\n\n## Conta\nPara receber via Pix é preciso ter uma conta de recebimento com chave Pix ativa cadastrada.\n\n"
+        "## Prazo\nO valor da venda via Pix cai na conta na hora, inclusive em fins de semana e feriados nacionais.\n",
+        encoding="utf-8",
+    )
+    docs = load_markdown(tmp_path)
+    assert [d.title for d in docs] == ["Pix — Conta", "Pix — Prazo"]
+    assert all(d.url == "https://site.getnet.com.br/pix/" and d.tags == ["pix", "chave"] for d in docs)
+
+
+def test_index_combines_jsonl_and_markdown_sheets() -> None:
+    store = load_store(str(DEFAULT_KNOWLEDGE))
+    assert len(store) > len(load_corpus(DEFAULT_KNOWLEDGE))
+    assert "troubleshooting-conexao" in {d.section for d in store.docs}
+
+
 def test_real_corpus_is_bilingual_with_https_sources() -> None:
-    docs = load_corpus(DEFAULT_KNOWLEDGE)
+    # The served index = jsonl snapshot (if present) + curated `*.md` sheets; assert on what is really served.
+    docs = load_store(str(DEFAULT_KNOWLEDGE)).docs
     assert len(docs) >= 20
     assert {d.lang for d in docs} == {"pt", "en"}
     assert all(d.url.startswith("https://") for d in docs)
+    topics = {d.section for d in docs}
+    assert topics == {d.section for d in docs if d.lang == "en"}, "every topic needs an English passage"
 
 
 @pytest.mark.parametrize(

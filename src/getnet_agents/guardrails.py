@@ -65,8 +65,12 @@ _INJECTION = re.compile(
     r"|system prompt|prompt do sistema|developer mode|modo desenvolvedor|jailbreak|\bdan mode\b"
     r"|you are now (an?|the) |a partir de agora voce e |act as an? (unrestricted|unfiltered)"
 )
+_ABUSE = re.compile(
+    r"\b(xing\w*|humilh\w*|ofend\w*|ameac\w*|insult\w*|humiliat\w*|threaten\w*|harass\w*|assedi\w*)\b"
+)
+_OTHER_MERCHANT = re.compile(r"\b(cliente\d{2,}|client\d{2,}|user\d{2,})\b")
 _HARMFUL = re.compile(
-    r"clon(e|ar|ing) (a |o )?(card|cartao)|carding|stolen card|cartao roubado|cartoes roubados"
+    r"clon\w* (a |an |o |um |uma )?(credit |debit )?(card|cartao)|carding|stolen card|cartao roubado|cartoes roubados"
     r"|lavagem de dinheiro|money laundering|launder money|bypass (the )?(fraud|antifraud)|burlar (o )?antifraude"
     r"|chargeback fraud|golpe do"
 )
@@ -93,13 +97,18 @@ class InputCheck:
     pii: list[str] = field(default_factory=list)
 
 
-def check_input(message: str) -> InputCheck:
+def check_input(message: str, user_id: str | None = None) -> InputCheck:
     masked, pii = mask_pii(message)
     folded = fold(masked)
     if _INJECTION.search(folded):
         return InputCheck(masked, True, "prompt_injection", "Attempt to override system instructions", pii)
     if _HARMFUL.search(folded):
         return InputCheck(masked, True, "harmful", "Request for fraud or illegal activity", pii)
+    if _ABUSE.search(folded):
+        return InputCheck(masked, True, "abusive", "Request to produce abusive or threatening content", pii)
+    others = {m for m in _OTHER_MERCHANT.findall(folded) if m != fold(user_id or "")}
+    if others:  # BR-03: a merchant can only ask about their own account
+        return InputCheck(masked, True, "data_access", "Request for another merchant's data", pii)
     if _OFF_TOPIC.search(folded) and not _DOMAIN.search(folded):
         return InputCheck(masked, True, "out_of_scope", "Request unrelated to Getnet merchant support", pii)
     if pii:

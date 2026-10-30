@@ -42,6 +42,48 @@ def load_corpus(path: Path) -> list[Doc]:
     return docs
 
 
+def _front_matter(raw: str) -> tuple[dict[str, str], str]:
+    if not raw.startswith("---"):
+        return {}, raw
+    _, head, body = raw.split("---", 2)
+    meta = {}
+    for line in head.strip().splitlines():
+        key, _, value = line.partition(":")
+        meta[key.strip()] = value.strip()
+    return meta, body
+
+
+def load_markdown(folder: Path) -> list[Doc]:
+    """Curated topic sheets (`*.md` with front matter: title, source_url, keywords, lang_original).
+
+    Each `## ` section becomes one document, so retrieval returns the relevant step, not the whole sheet.
+    Files without `source_url` (README, SOURCES) are not knowledge and are skipped.
+    """
+    docs: list[Doc] = []
+    for path in sorted(folder.glob("*.md")):
+        meta, body = _front_matter(path.read_text(encoding="utf-8"))
+        url = meta.get("source_url", "")
+        if not url.startswith("https://"):
+            continue
+        tags = [t.strip() for t in meta.get("keywords", "").strip("[]").split(",") if t.strip()]
+        for i, section in enumerate(re.split(r"\n(?=## )", body)):
+            lines = [ln for ln in section.strip().splitlines() if ln.strip()]
+            if not lines:
+                continue
+            heading = lines[0].lstrip("#").strip() if lines[0].startswith("#") else ""
+            text = " ".join(ln.strip() for ln in (lines[1:] if heading else lines))
+            if len(text.split()) < 12:
+                continue
+            # `lang_original` is the language of the source page, not of the curated text: the sheets are
+            # written in Portuguese, and each one carries an "## English summary" section for English queries.
+            lang = "en" if heading.lower().startswith("english") else "pt"
+            docs.append(Doc(
+                id=f"{path.stem}#{i}", title=f"{meta.get('title', path.stem)} — {heading}".strip(" —"),
+                url=url, lang=lang, text=text, tags=tags, section=path.stem,
+            ))
+    return docs
+
+
 class _TextExtractor(HTMLParser):
     SKIP = {"script", "style", "nav", "footer", "header", "noscript", "svg", "form"}
 

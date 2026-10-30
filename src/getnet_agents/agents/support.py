@@ -94,10 +94,12 @@ def _render(name: str, data: Any, lang: str) -> tuple[str, dict[str, Any]]:
             seen = t.get("last_seen", "")[:16].replace("T", " ")
             state = TERMINAL_STATE.get(t.get("status", ""), (t.get("status", ""), t.get("status", "")))[0 if pt else 1]
             error = t.get("last_error") or "-"
+            if t.get("active_link") and t.get("status") == "degraded":
+                state += f" (operando pelo {t['active_link']})" if pt else f" (running on {t['active_link']})"
             parts.append(
-                f"A maquininha {t['model']} ({t['terminal_id']}) está {state} (último contato {seen}); erro registrado: \"{error}\"."
+                f"A maquininha {t['model']} ({t['terminal_id']}) está {state}; último contato em {seen}; erro registrado: \"{error}\"."
                 if pt else
-                f"Your {t['model']} ({t['terminal_id']}) is {state} (last seen {seen}); recorded error (as logged, in Portuguese): \"{error}\"."
+                f"Your {t['model']} ({t['terminal_id']}) is {state}; last seen {seen}; recorded error (as logged, in Portuguese): \"{error}\"."
             )
         return " ".join(parts), facts
     if name == "get_recent_transactions":

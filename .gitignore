@@ -12,3 +12,4 @@ dist/
 .coverage
 htmlcov/
 evals/results/*.json
+data/knowledge/corpus.live.jsonl

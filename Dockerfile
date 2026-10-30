@@ -3,14 +3,18 @@ FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
-    PIP_DISABLE_PIP_VERSION_CHECK=1
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    KNOWLEDGE_PATH=/app/data/knowledge/corpus.jsonl \
+    CRM_DATA_PATH=/app/data/crm/customers.json \
+    CRM_HOLIDAYS_PATH=/app/data/crm/holidays.json
 
 WORKDIR /app
 
 # Dependencies first: this layer is cached while only the code changes.
 COPY pyproject.toml ./
 COPY src ./src
-RUN pip install ".[dev]"
+# Editable install: the package runs from /app/src, so data/ paths resolve to /app/data.
+RUN pip install -e ".[dev]"
 
 COPY data ./data
 COPY tests ./tests

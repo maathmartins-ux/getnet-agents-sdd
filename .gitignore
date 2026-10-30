@@ -13,3 +13,4 @@ dist/
 htmlcov/
 evals/results/*.json
 data/knowledge/corpus.live.jsonl
+smoke_results.json

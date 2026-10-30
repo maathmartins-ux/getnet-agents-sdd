@@ -22,3 +22,6 @@ docker-up:
 
 docker-test:
 	docker compose --profile test run --rm test
+
+smoke:
+	$(PY) scripts/smoke_cases.py evals/dataset.jsonl smoke_results.json

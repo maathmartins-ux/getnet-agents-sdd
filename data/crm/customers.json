@@ -11,39 +11,143 @@
       "segment": "Alimentação",
       "since": "2021-03-15",
       "receivables_plan": "D+1",
-      "fees": {"debit": 0.0199, "credit": 0.0349, "pix": 0.0},
+      "fees": {
+        "debit": 0.0199,
+        "credit": 0.0349,
+        "pix": 0.0
+      },
       "terminals": [
         {
           "terminal_id": "T-1988-01",
           "model": "Get Smart",
           "serial": "GS-0001988-A",
-          "status": "online",
-          "connectivity": "wifi",
-          "signal": "good",
+          "status": "degraded",
+          "active_link": "chip",
+          "connectivity": {
+            "wifi": {
+              "status": "weak",
+              "signal_dbm": -84,
+              "ssid": "PadariaBomGrao"
+            },
+            "chip": {
+              "status": "ok",
+              "signal_bars": 4,
+              "operator": "Operadora fictícia"
+            }
+          },
           "last_seen": "2026-10-30T14:52:00-03:00",
-          "last_error": null
-        },
-        {
-          "terminal_id": "T-1988-02",
-          "model": "Get Clássica",
-          "serial": "GC-0001988-B",
-          "status": "offline",
-          "connectivity": "chip",
-          "signal": "none",
-          "last_seen": "2026-10-30T09:14:00-03:00",
-          "last_error": "Sem conexão: chip sem sinal / Wi-Fi não configurado"
+          "last_error": "Wi-Fi com sinal fraco (-84 dBm); a maquininha opera pelo chip"
         }
       ],
       "transactions": [
-        {"id": "TX-1988-0001", "datetime": "2026-10-29T08:12:00-03:00", "terminal_id": "T-1988-01", "product": "debit", "brand": "Visa", "amount": 45.90, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-1988-0002", "datetime": "2026-10-29T09:40:00-03:00", "terminal_id": "T-1988-01", "product": "credit", "brand": "Mastercard", "amount": 289.50, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-1988-0003", "datetime": "2026-10-29T11:05:00-03:00", "terminal_id": "T-1988-01", "product": "pix", "brand": "Pix", "amount": 75.00, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-1988-0004", "datetime": "2026-10-29T15:30:00-03:00", "terminal_id": "T-1988-02", "product": "debit", "brand": "Elo", "amount": 120.00, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-1988-0005", "datetime": "2026-10-29T17:48:00-03:00", "terminal_id": "T-1988-01", "product": "credit", "brand": "Visa", "amount": 512.30, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-1988-0006", "datetime": "2026-10-29T18:02:00-03:00", "terminal_id": "T-1988-01", "product": "credit", "brand": "Visa", "amount": 830.00, "status": "declined", "decline_code": "51", "decline_reason": "51 – saldo insuficiente / limite indisponível no cartão do comprador"},
-        {"id": "TX-1988-0007", "datetime": "2026-10-30T10:21:00-03:00", "terminal_id": "T-1988-01", "product": "debit", "brand": "Mastercard", "amount": 64.20, "status": "declined", "decline_code": "05", "decline_reason": "05 – transação não autorizada pelo emissor"},
-        {"id": "TX-1988-0008", "datetime": "2026-10-30T10:24:00-03:00", "terminal_id": "T-1988-01", "product": "pix", "brand": "Pix", "amount": 64.20, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-1988-0009", "datetime": "2026-10-28T12:10:00-03:00", "terminal_id": "T-1988-02", "product": "credit", "brand": "Elo", "amount": 199.99, "status": "approved", "decline_code": null, "decline_reason": null}
+        {
+          "id": "TX-1988-0001",
+          "datetime": "2026-10-29T08:12:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "debit",
+          "brand": "Visa",
+          "amount": 45.9,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 4242"
+        },
+        {
+          "id": "TX-1988-0002",
+          "datetime": "2026-10-29T09:40:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "credit",
+          "brand": "Mastercard",
+          "amount": 289.5,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 5100"
+        },
+        {
+          "id": "TX-1988-0003",
+          "datetime": "2026-10-29T11:05:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "pix",
+          "brand": "Pix",
+          "amount": 75.0,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": null
+        },
+        {
+          "id": "TX-1988-0004",
+          "datetime": "2026-10-29T15:30:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "debit",
+          "brand": "Elo",
+          "amount": 120.0,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 6504"
+        },
+        {
+          "id": "TX-1988-0005",
+          "datetime": "2026-10-29T17:48:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "credit",
+          "brand": "Visa",
+          "amount": 512.3,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 4242"
+        },
+        {
+          "id": "TX-1988-0006",
+          "datetime": "2026-10-29T18:02:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "credit",
+          "brand": "Visa",
+          "amount": 830.0,
+          "status": "declined",
+          "decline_code": "51",
+          "decline_reason": "51 – saldo insuficiente / limite indisponível no cartão do comprador",
+          "card_masked": "**** **** **** 0119"
+        },
+        {
+          "id": "TX-1988-0007",
+          "datetime": "2026-10-30T10:21:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "debit",
+          "brand": "Mastercard",
+          "amount": 64.2,
+          "status": "declined",
+          "decline_code": "05",
+          "decline_reason": "05 – transação não autorizada pelo emissor",
+          "card_masked": "**** **** **** 5100"
+        },
+        {
+          "id": "TX-1988-0008",
+          "datetime": "2026-10-30T10:24:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "pix",
+          "brand": "Pix",
+          "amount": 64.2,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": null
+        },
+        {
+          "id": "TX-1988-0009",
+          "datetime": "2026-10-28T12:10:00-03:00",
+          "terminal_id": "T-1988-01",
+          "product": "credit",
+          "brand": "Elo",
+          "amount": 199.99,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 6504"
+        }
       ]
     },
     "cliente2045": {
@@ -56,7 +160,11 @@
       "segment": "Serviços automotivos",
       "since": "2023-07-01",
       "receivables_plan": "standard",
-      "fees": {"debit": 0.0179, "credit": 0.0299, "pix": 0.0},
+      "fees": {
+        "debit": 0.0179,
+        "credit": 0.0299,
+        "pix": 0.0
+      },
       "terminals": [
         {
           "terminal_id": "T-2045-01",
@@ -70,8 +178,30 @@
         }
       ],
       "transactions": [
-        {"id": "TX-2045-0001", "datetime": "2026-10-29T10:00:00-03:00", "terminal_id": "T-2045-01", "product": "credit", "brand": "Mastercard", "amount": 1450.00, "status": "approved", "decline_code": null, "decline_reason": null},
-        {"id": "TX-2045-0002", "datetime": "2026-10-29T16:20:00-03:00", "terminal_id": "T-2045-01", "product": "debit", "brand": "Visa", "amount": 380.00, "status": "approved", "decline_code": null, "decline_reason": null}
+        {
+          "id": "TX-2045-0001",
+          "datetime": "2026-10-29T10:00:00-03:00",
+          "terminal_id": "T-2045-01",
+          "product": "credit",
+          "brand": "Mastercard",
+          "amount": 1450.0,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 8801"
+        },
+        {
+          "id": "TX-2045-0002",
+          "datetime": "2026-10-29T16:20:00-03:00",
+          "terminal_id": "T-2045-01",
+          "product": "debit",
+          "brand": "Visa",
+          "amount": 380.0,
+          "status": "approved",
+          "decline_code": null,
+          "decline_reason": null,
+          "card_masked": "**** **** **** 2233"
+        }
       ]
     },
     "cliente3101": {
@@ -84,7 +214,11 @@
       "segment": "Moda e acessórios",
       "since": "2025-01-20",
       "receivables_plan": "standard",
-      "fees": {"debit": 0.0199, "credit": 0.0319, "pix": 0.0},
+      "fees": {
+        "debit": 0.0199,
+        "credit": 0.0319,
+        "pix": 0.0
+      },
       "terminals": [],
       "transactions": []
     }

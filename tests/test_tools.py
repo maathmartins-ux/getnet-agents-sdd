@@ -66,7 +66,7 @@ def test_run_tool_dispatches() -> None:
 def test_customer_profile_and_unknown_user() -> None:
     r = crm.get_customer_profile("cliente1988")
     _assert_tool_result(r)
-    assert r["data"]["receivables_plan"] == "D+1" and r["data"]["terminal_count"] == 2
+    assert r["data"]["receivables_plan"] == "D+1" and r["data"]["terminal_count"] == 1
     assert r["data"]["fictitious"] is True
     for fn in (crm.get_customer_profile, crm.get_settlement_forecast, crm.get_terminal_status, crm.get_recent_transactions):
         miss = fn("ghost")
@@ -142,11 +142,46 @@ def test_recent_transactions_filters_and_order() -> None:
     assert crm.get_recent_transactions("cliente3101")["data"] == []
 
 
-def test_terminal_status() -> None:
+def test_terminal_status_weak_wifi_chip_ok() -> None:
     d = crm.get_terminal_status("cliente1988")["data"]
-    assert d["offline_count"] == 1
-    offline = next(t for t in d["terminals"] if t["status"] == "offline")
-    assert offline["model"] == "Get Clássica" and "Sem conexão" in offline["last_error"]
+    assert len(d["terminals"]) == 1 and d["degraded_count"] == 1 and d["offline_count"] == 1
+    t = d["terminals"][0]
+    assert t["model"] == "Get Smart" and t["status"] == "degraded" and t["active_link"] == "chip"
+    assert t["connectivity"]["wifi"]["status"] == "weak" and t["connectivity"]["chip"]["status"] == "ok"
+    assert t["diagnosis"] == ["wifi_weak", "chip_ok"] and "Wi-Fi" in t["last_error"]
+    healthy = crm.get_terminal_status("cliente2045")["data"]
+    assert healthy["offline_count"] == 0 and healthy["terminals"][0]["status"] == "online"
+    assert crm.get_terminal_status("cliente3101")["data"]["terminals"] == []  # merchant without machines
+
+
+def test_three_fictitious_merchants() -> None:
+    profiles = {u: crm.get_customer_profile(u) for u in ("cliente1988", "cliente2045", "cliente3101")}
+    assert all(p["ok"] and p["data"]["fictitious"] for p in profiles.values())
+    assert [p["data"]["terminal_count"] for p in profiles.values()] == [1, 1, 0]
+
+
+def test_card_numbers_are_always_masked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    # 1) the shipped dataset exposes only the last 4 digits
+    txs = crm.get_recent_transactions("cliente1988", limit=50)["data"]
+    cards = [t["card_masked"] for t in txs if t["product"] != "pix"]
+    assert cards and all(c.startswith("**** **** **** ") and len(c) == 19 for c in cards)
+    assert next(t for t in txs if t["product"] == "pix")["card_masked"] is None
+    # 2) even if the data source holds a raw PAN (in a field or in free text), it never leaves the tool
+    data = {"customers": {"x": {
+        "user_id": "x", "merchant_name": "X", "terminals": [],
+        "transactions": [{"id": "1", "datetime": "2026-10-30T10:00:00-03:00", "product": "credit",
+                          "amount": 10.0, "status": "declined", "card_number": "4111 1111 1111 1111",
+                          "decline_reason": "Cartão 5555555555554444 recusado"}],
+    }}}
+    p = tmp_path / "customers.json"
+    p.write_text(json.dumps(data), encoding="utf-8")
+    monkeypatch.setenv("CRM_DATA_PATH", str(p))
+    out = crm.get_recent_transactions("x")
+    blob = json.dumps(out, ensure_ascii=False)
+    assert "4111" not in blob and "5555555555554444" not in blob
+    assert out["data"][0]["card_masked"] == "**** **** **** 1111"
+    assert "card_number" not in out["data"][0] and "**** **** **** 4444" in out["data"][0]["decline_reason"]
+    assert crm.mask_card("pedido 1234567 e 12345678901234567") == "pedido 1234567 e **** **** **** 4567"
 
 
 def test_ticket_is_deterministic_and_idempotent() -> None:

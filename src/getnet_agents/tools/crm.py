@@ -9,6 +9,7 @@ import functools
 import hashlib
 import json
 import os
+import re
 from collections.abc import Callable
 from datetime import date, datetime, timedelta
 from decimal import ROUND_HALF_UP, Decimal
@@ -111,6 +112,52 @@ def next_business_day_on_or_after(d: date, holidays: set[date] | None = None) ->
     while not is_business_day(d, hol):
         d += timedelta(days=1)
     return d
+
+
+_PAN_RE = re.compile(r"(?<!\d)(?:\d[ -]?){12,18}\d(?!\d)")
+
+
+def mask_card(value: Any) -> Any:
+    """Mask every card number (13-19 digits) in a value, keeping only the last 4 digits.
+
+    Applied to everything a CRM tool returns, so a raw PAN in the data source can never leak.
+    """
+    if isinstance(value, str):
+        def repl(m: re.Match[str]) -> str:
+            digits = re.sub(r"\D", "", m.group(0))
+            return f"**** **** **** {digits[-4:]}" if 13 <= len(digits) <= 19 else m.group(0)
+
+        return _PAN_RE.sub(repl, value)
+    if isinstance(value, dict):
+        return {k: mask_card(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [mask_card(v) for v in value]
+    return value
+
+
+def _sanitize_transaction(tx: dict[str, Any]) -> dict[str, Any]:
+    out = dict(tx)
+    raw = out.pop("card_number", None)  # never expose a raw number, even if the source has one
+    if raw and not out.get("card_masked"):
+        digits = re.sub(r"\D", "", str(raw))
+        out["card_masked"] = f"**** **** **** {digits[-4:]}" if digits else None
+    return mask_card(out)
+
+
+def _diagnose_terminal(t: dict[str, Any]) -> list[str]:
+    """Machine-readable connectivity findings, e.g. ['wifi_weak', 'chip_ok']."""
+    conn = t.get("connectivity")
+    found: list[str] = []
+    if isinstance(conn, dict):
+        for link in ("wifi", "chip"):
+            st = (conn.get(link) or {}).get("status")
+            if st:
+                found.append(f"{link}_{st}")
+    elif conn:
+        found.append(f"link_{conn}")
+    if t.get("status") == "offline":
+        found.append("terminal_offline")
+    return found
 
 
 def _money(x: Decimal) -> float:
@@ -257,7 +304,7 @@ def get_recent_transactions(user_id: str, status: str | None = None, limit: int 
         return _fail("invalid_limit", source)
     txs = [t for t in c.get("transactions", []) if status is None or t.get("status") == status]
     txs.sort(key=lambda t: t["datetime"], reverse=True)
-    return _ok([dict(t) for t in txs[:n]], source)
+    return _ok([_sanitize_transaction(t) for t in txs[:n]], source)
 
 
 @_safe("crm://terminals")
@@ -267,11 +314,17 @@ def get_terminal_status(user_id: str) -> ToolResult:
     c = _customer(user_id)
     if c is None:
         return _fail("customer_not_found", source)
-    terminals = [dict(t) for t in c.get("terminals", [])]
+    terminals = []
+    for t in c.get("terminals", []):
+        item = dict(t)
+        item["diagnosis"] = _diagnose_terminal(t)
+        terminals.append(item)
     data = {
         "user_id": c["user_id"],
         "terminals": terminals,
+        # "offline_count" = machines that are not fully online (offline or degraded): kept for callers.
         "offline_count": sum(1 for t in terminals if t.get("status") != "online"),
+        "degraded_count": sum(1 for t in terminals if t.get("status") == "degraded"),
     }
     return _ok(data, source)
 

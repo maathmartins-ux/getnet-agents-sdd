@@ -15,7 +15,7 @@ Este comparativo junta o que as páginas e os manuais oficiais da Getnet informa
 | Tipo | Teclado físico, impressora de bobina | Tela touchscreen |
 | Conectividade | Chip 3G gratuito + Wi-Fi (Bluetooth no ícone do visor) | Chip 4G gratuito + Wi-Fi + Bluetooth |
 | Impressora | Bobina de papel (2 bobinas na caixa) | Imprime via do cliente e relatórios (modelo da impressora não informado) |
-| Aplicativos | Sem loja de apps (usa o Aplicativo Getnet Brasil no celular) | Apps de sistema (Pagamento, Getstore, Configurar) e automações instaladas pela Getstore |
+| Aplicativos | Não informado no manual (a gestão da conta é feita pelo Aplicativo Getnet Brasil no celular) | Apps de sistema (Pagamento, Getstore, Configurar) e automações instaladas pela Getstore |
 | Android | Não informado | Sim: equipamento Android, mais de 100 apps homologados (Central de ajuda) |
 | Pix | QR Code na tela; manual exige domicílio bancário Santander | QR Code ou aproximação NFC; habilitar no app |
 | Aproximação (NFC) | Sim | Sim |
